@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  stress:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2022-04-20T19:41:41.836822+03:00"
+    description: Chart for stress testing Kubernetes
+    digest: 61441d38144c6ed91afef6222cd97b8f6618496813b0698571929b0fa16ac2d9
+    name: stress
+    type: application
+    urls:
+    - https://gromr1.github.io/helm-charts/stress/stress-0.0.1.tgz
+    version: 0.0.1
+generated: "2022-04-20T19:41:41.835967+03:00"
