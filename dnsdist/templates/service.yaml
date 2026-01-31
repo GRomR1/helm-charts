@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dnsdist.fullname" . }}
+  labels:
+    {{- include "dnsdist.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8053
+      protocol: TCP
+      name: doh
+  ports:
+    - port: {{ .Values.service.domainPort }}
+      targetPort: 5300
+      protocol: UDP
+      name: dns
+  selector:
+    {{- include "dnsdist.selectorLabels" . | nindent 4 }}

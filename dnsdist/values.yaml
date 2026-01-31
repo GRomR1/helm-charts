@@ -1,0 +1,92 @@
+# Default values for dnsdist.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: askbjoernhansen/dnsdist
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+healthCheckHeaders: {}
+# match the configured web server password from webserver()
+# - name: Authorization
+#   value: Basic aGVsbG86c2VjcmV0
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  domainPort: 53
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: haproxy
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 1
+      preference:
+        matchExpressions:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+
+tolerations:
+  - key: node-role.kubernetes.io/master
+    effect: NoSchedule
+
+config:
+  dnsdist.conf: |
+    addDOHLocal("0.0.0.0:8053", nil, nil, "/dns-query", { reusePort=true })
+    newServer({address="8.8.8.8:53", qps=10})
+    newServer({address="9.9.9.11:53", qps=100})
+
+    setServerPolicy(firstAvailable)
+    webserver("0.0.0.0:8083", "secret", "secret")
+
+    addLocal("0.0.0.0:5300", { reusePort=true })
